@@ -19,16 +19,11 @@ var (
 	# view the permissions for the specified service account
 	%[1]s permissions default
 `
-
-	errNoContext = fmt.Errorf("no context is currently set, use %q to select a new one", "kubectl config use-context <context>")
 )
 
 // PermissionsOptions provides information to view permissions
 type PermissionsOptions struct {
 	configFlags *genericclioptions.ConfigFlags
-	
-	args []string
-
 	genericclioptions.IOStreams
 }
 
