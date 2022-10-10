@@ -80,7 +80,8 @@ func main() {
 			// lets get the permissions
 			for _, rule := range role.Rules {
 				for _, resourceName := range rule.Resources {
-					root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s)#%s.%s verbs=%s", sa.Name, sa.Namespace, roleBinding.Name, roleBinding.Namespace, role.Name, role.Namespace, resourceName, apiGroup(rule.APIGroups), rule.Verbs))
+					root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s)#%s#%s verbs=%s",
+						sa.Name, sa.Namespace, roleBinding.Name, roleBinding.Namespace, role.Name, role.Namespace, apiGroup(rule.APIGroups), resourceName, rule.Verbs))
 				}
 			}
 		}
