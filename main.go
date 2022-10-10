@@ -58,7 +58,8 @@ func main() {
 			// lets get the permissions
 			for _, rule := range clusterRole.Rules {
 				for _, resourceName := range rule.Resources {
-					root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s#ClusterRole/%s#%s.%s verbs=%s", sa.Name, sa.Namespace, clusterRoleBinding.Name, clusterRole.Name, resourceName, apiGroup(rule.APIGroups), rule.Verbs))
+					root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s#ClusterRole/%s#%s#%s verbs=%s",
+						sa.Name, sa.Namespace, clusterRoleBinding.Name, clusterRole.Name, apiGroup(rule.APIGroups), resourceName, rule.Verbs))
 				}
 			}
 		}
