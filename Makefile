@@ -1,5 +1,5 @@
 build:
-	go build -o permissions main.go
+	go build -o permissions cmd/kubectl-permissions.go
 
 lint:
 	golangci-lint run
