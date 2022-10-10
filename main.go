@@ -12,13 +12,17 @@ import (
 )
 
 func main() {
+	var err error
 	c, err := clientcmd.NewDefaultClientConfigLoadingRules().Load()
 	if err != nil {
-		os.Exit(1)
+		panic(err)
 	}
+
 	clientConfig := clientcmd.NewDefaultClientConfig(*c, nil)
 	config, err := clientConfig.ClientConfig()
-
+	if err != nil {
+		panic(err)
+	}
 	ctx := context.Background()
 
 	client, err := kubernetes.NewForConfig(config)
