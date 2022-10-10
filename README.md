@@ -1,11 +1,20 @@
 # permissions
 
-TODO make this a kubectl plugin
+A kubectl plugin to display permissions from a service account
+
+## Installation
+
+```
+make build
+make install
+```
+
+TODO make this `krew` installable
 
 ## Example
 
 ```
-❯ ./permissions default
+❯ kubectl permissions default
 ServiceAccount/default (gareth-dev)
 └ ClusterRoleBinding/read-k8s-tint
   └ ClusterRole/k8s-reader-tint
