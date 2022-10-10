@@ -3,13 +3,12 @@ package asciitree
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 )
 
-// Tree can be any map with:
-// 1. Key that has method 'String() string'
-// 2. Value is Tree itself
-// You can replace this with your own tree
+// taken from https://github.com/Tufin/asciitree
+
 type Tree map[string]Tree
 
 func (tree Tree) Add(path string) {
@@ -37,7 +36,14 @@ func (tree Tree) Fprint(w io.Writer, root bool, padding string) {
 	}
 
 	index := 0
-	for k, v := range tree {
+
+	keys := make([]string, 0)
+	for k := range tree {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		v := tree[k]
 		fmt.Fprintf(w, "%s%s\n", padding+getPadding(root, getBoxType(index, len(tree))), k)
 		v.Fprint(w, false, padding+getPadding(root, getBoxTypeExternal(index, len(tree))))
 		index++
