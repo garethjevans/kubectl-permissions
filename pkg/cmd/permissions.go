@@ -11,7 +11,6 @@ import (
 	"os"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 var (
@@ -62,22 +61,18 @@ func NewCmdPermissions(streams genericclioptions.IOStreams) *cobra.Command {
 // Run lists all available namespaces on a user's KUBECONFIG or updates the
 // current context based on a provided namespace.
 func (o *PermissionsOptions) Run() error {
+
 	var err error
-	c, err := clientcmd.NewDefaultClientConfigLoadingRules().Load()
+	config, err := o.configFlags.ToRESTConfig()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	clientConfig := clientcmd.NewDefaultClientConfig(*c, nil)
-	config, err := clientConfig.ClientConfig()
-	if err != nil {
-		panic(err)
-	}
 	ctx := context.Background()
 
 	client, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if len(os.Args) < 2 {
@@ -85,35 +80,43 @@ func (o *PermissionsOptions) Run() error {
 	}
 
 	name := os.Args[1]
-	namespace, _, err := clientConfig.Namespace()
+	
+	namespace := getNamespace(o.configFlags)
+
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	sa, err := client.CoreV1().ServiceAccounts(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	root := asciitree.Tree{}
 
 	clusterRoleBindings, err := client.RbacV1().ClusterRoleBindings().List(ctx, metav1.ListOptions{})
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	for _, clusterRoleBinding := range clusterRoleBindings.Items {
 		if matches(clusterRoleBinding.Subjects, namespace, name) {
 			clusterRole, err := client.RbacV1().ClusterRoles().Get(ctx, clusterRoleBinding.RoleRef.Name, metav1.GetOptions{})
 			if err != nil {
-				panic(err)
+				return err
 			}
 
 			// lets get the permissions
 			for _, rule := range clusterRole.Rules {
 				for _, resourceName := range rule.Resources {
 					root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s#ClusterRole/%s#%s#%s verbs=%s",
-						sa.Name, sa.Namespace, clusterRoleBinding.Name, clusterRole.Name, apiGroup(rule.APIGroups), resourceName, rule.Verbs))
+						sa.Name,
+						sa.Namespace,
+						clusterRoleBinding.Name,
+						clusterRole.Name,
+						apiGroup(rule.APIGroups),
+						resourceName,
+						rule.Verbs))
 				}
 			}
 		}
@@ -121,21 +124,29 @@ func (o *PermissionsOptions) Run() error {
 
 	roleBindings, err := client.RbacV1().RoleBindings(namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	for _, roleBinding := range roleBindings.Items {
 		if matches(roleBinding.Subjects, namespace, name) {
 			role, err := client.RbacV1().ClusterRoles().Get(ctx, roleBinding.RoleRef.Name, metav1.GetOptions{})
 			if err != nil {
-				panic(err)
+				return err
 			}
 
 			// lets get the permissions
 			for _, rule := range role.Rules {
 				for _, resourceName := range rule.Resources {
 					root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s)#%s#%s verbs=%s",
-						sa.Name, sa.Namespace, roleBinding.Name, roleBinding.Namespace, role.Name, role.Namespace, apiGroup(rule.APIGroups), resourceName, rule.Verbs))
+						sa.Name,
+						sa.Namespace,
+						roleBinding.Name,
+						roleBinding.Namespace,
+						role.Name,
+						role.Namespace,
+						apiGroup(rule.APIGroups),
+						resourceName,
+						rule.Verbs))
 				}
 			}
 		}
