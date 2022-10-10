@@ -30,8 +30,7 @@ type PermissionsOptions struct {
 func NewPermissionsOptions(streams genericclioptions.IOStreams) *PermissionsOptions {
 	return &PermissionsOptions{
 		configFlags: genericclioptions.NewConfigFlags(true),
-
-		IOStreams: streams,
+		IOStreams:   streams,
 	}
 }
 
@@ -48,7 +47,6 @@ func NewCmdPermissions(streams genericclioptions.IOStreams) *cobra.Command {
 			if err := o.Run(); err != nil {
 				return err
 			}
-
 			return nil
 		},
 	}
@@ -76,16 +74,12 @@ func (o *PermissionsOptions) Run() error {
 	}
 
 	if len(os.Args) < 2 {
-		fmt.Println("Usage> permissions <sa>")
+		fmt.Println("Usage> kubectl permissions <sa>")
 	}
 
 	name := os.Args[1]
-	
-	namespace := getNamespace(o.configFlags)
 
-	if err != nil {
-		return err
-	}
+	namespace := getNamespace(o.configFlags)
 
 	sa, err := client.CoreV1().ServiceAccounts(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
@@ -170,6 +164,9 @@ func apiGroup(in []string) string {
 	if len(in) == 0 {
 		return "empty"
 	} else if len(in) == 1 {
+		if in[0] == "" {
+			return "<default>"
+		}
 		return in[0]
 	} else {
 		panic("expected length 1")
