@@ -2,9 +2,10 @@ package integration
 
 import (
 	. "github.com/onsi/ginkgo/v2"
-	"github.com/onsi/gomega"
-	"github.com/onsi/gomega/gexec"
+	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gexec"
 	"os/exec"
+	"strings"
 	"testing"
 	"time"
 )
@@ -14,10 +15,10 @@ func TestPluginIntegration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	gomega.RegisterTestingT(t)
+	RegisterTestingT(t)
 
 	command := exec.Command("kubectl", "permissions", "sa-under-test", "-n", "test-namespace")
-	session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
+	session, err := Start(command, GinkgoWriter, GinkgoWriter)
 	if err != nil {
 		t.Errorf("unable to exec command %s", err)
 	}
@@ -28,14 +29,14 @@ func TestPluginIntegration(t *testing.T) {
 ServiceAccount/sa-under-test (test-namespace)
 ├ ClusterRoleBinding/cluster-roles
 │ └ ClusterRole/cluster-level-role
-│   ├ <default>
+│   ├ apps
+│   │ ├ deployments verbs=[get watch list]
+│   │ └ replicasets verbs=[get watch list]
+│   ├ core.k8s.io
 │   │ ├ configmaps verbs=[get watch list]
 │   │ ├ pods verbs=[get watch list]
 │   │ ├ pods/log verbs=[get watch list]
 │   │ └ services verbs=[get watch list]
-│   ├ apps
-│   │ ├ deployments verbs=[get watch list]
-│   │ └ replicasets verbs=[get watch list]
 │   └ networking.k8s.io
 │     └ ingresses verbs=[get]
 ├ RoleBinding/missconfigured (test-namespace)
@@ -49,7 +50,8 @@ ServiceAccount/sa-under-test (test-namespace)
     │ └ gitrepositories verbs=[get watch list]
     └ tekton.dev
       ├ pipelineruns verbs=[get watch list]
-      └ taskruns verbs=[get watch list]`
+      └ taskruns verbs=[get watch list]
+`
 
-	gomega.Expect(response).To(gomega.Equal(expected))
+	Expect(strings.TrimSpace(response)).To(Equal(strings.TrimSpace(expected)))
 }

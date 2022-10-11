@@ -42,5 +42,7 @@ jobs:
       - name: Deploy RBAC
         run: |
           kubectl apply -f example-rbac.yaml
-          kubectl permissions sa-under-test -n test-namespace
+
+      - name: Integration Tests
+        run: |
           make integration
