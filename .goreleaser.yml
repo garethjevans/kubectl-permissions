@@ -3,7 +3,7 @@ before:
   - go mod download
 builds:
 - id: kubectl-permissions
-  main: ./cmd/kubectl-permissions
+  main: ./cmd/kubectl-permissions.go
   binary: kubectl-permissions
   env:
   - CGO_ENABLED=0
