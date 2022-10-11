@@ -97,20 +97,25 @@ func (o *PermissionsOptions) Run() error {
 		if matches(clusterRoleBinding.Subjects, namespace, name) {
 			clusterRole, err := client.RbacV1().ClusterRoles().Get(ctx, clusterRoleBinding.RoleRef.Name, metav1.GetOptions{})
 			if err != nil {
-				return err
-			}
-
-			// lets get the permissions
-			for _, rule := range clusterRole.Rules {
-				for _, resourceName := range rule.Resources {
-					root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s#ClusterRole/%s#%s#%s verbs=%s",
-						sa.Name,
-						sa.Namespace,
-						clusterRoleBinding.Name,
-						clusterRole.Name,
-						apiGroup(rule.APIGroups),
-						resourceName,
-						rule.Verbs))
+				fmt.Println("[WARNING]", err)
+				root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s#ClusterRole/%s MISSING!!",
+					sa.Name,
+					sa.Namespace,
+					clusterRoleBinding.Name,
+					clusterRoleBinding.RoleRef.Name))
+			} else {
+				// lets get the permissions
+				for _, rule := range clusterRole.Rules {
+					for _, resourceName := range rule.Resources {
+						root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s#ClusterRole/%s#%s#%s verbs=%s",
+							sa.Name,
+							sa.Namespace,
+							clusterRoleBinding.Name,
+							clusterRole.Name,
+							apiGroup(rule.APIGroups),
+							resourceName,
+							rule.Verbs))
+					}
 				}
 			}
 		}
@@ -123,24 +128,31 @@ func (o *PermissionsOptions) Run() error {
 
 	for _, roleBinding := range roleBindings.Items {
 		if matches(roleBinding.Subjects, namespace, name) {
-			role, err := client.RbacV1().ClusterRoles().Get(ctx, roleBinding.RoleRef.Name, metav1.GetOptions{})
+			role, err := client.RbacV1().Roles(namespace).Get(ctx, roleBinding.RoleRef.Name, metav1.GetOptions{})
 			if err != nil {
-				return err
-			}
-
-			// lets get the permissions
-			for _, rule := range role.Rules {
-				for _, resourceName := range rule.Resources {
-					root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s)#%s#%s verbs=%s",
-						sa.Name,
-						sa.Namespace,
-						roleBinding.Name,
-						roleBinding.Namespace,
-						role.Name,
-						role.Namespace,
-						apiGroup(rule.APIGroups),
-						resourceName,
-						rule.Verbs))
+				fmt.Println("[WARNING]", err)
+				root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s) MISSING!!",
+					sa.Name,
+					sa.Namespace,
+					roleBinding.Name,
+					roleBinding.Namespace,
+					roleBinding.RoleRef.Name,
+					roleBinding.RoleRef.Name))
+			} else {
+				// lets get the permissions
+				for _, rule := range role.Rules {
+					for _, resourceName := range rule.Resources {
+						root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s)#%s#%s verbs=%s",
+							sa.Name,
+							sa.Namespace,
+							roleBinding.Name,
+							roleBinding.Namespace,
+							role.Name,
+							role.Namespace,
+							apiGroup(rule.APIGroups),
+							resourceName,
+							rule.Verbs))
+					}
 				}
 			}
 		}
