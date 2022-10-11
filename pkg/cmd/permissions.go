@@ -109,14 +109,16 @@ func (o *PermissionsOptions) Run() error {
 				// lets get the permissions
 				for _, rule := range clusterRole.Rules {
 					for _, resourceName := range rule.Resources {
-						root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s#ClusterRole/%s#%s#%s verbs=%s",
-							sa.Name,
-							sa.Namespace,
-							clusterRoleBinding.Name,
-							clusterRole.Name,
-							apiGroup(rule.APIGroups),
-							resourceName,
-							rule.Verbs))
+						for _, apiGroup := range rule.APIGroups {
+							root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s#ClusterRole/%s#%s#%s verbs=%s",
+								sa.Name,
+								sa.Namespace,
+								clusterRoleBinding.Name,
+								clusterRole.Name,
+								getApiGroup(apiGroup),
+								resourceName,
+								rule.Verbs))
+						}
 					}
 				}
 			}
@@ -144,16 +146,18 @@ func (o *PermissionsOptions) Run() error {
 				// lets get the permissions
 				for _, rule := range role.Rules {
 					for _, resourceName := range rule.Resources {
-						root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s)#%s#%s verbs=%s",
-							sa.Name,
-							sa.Namespace,
-							roleBinding.Name,
-							roleBinding.Namespace,
-							role.Name,
-							role.Namespace,
-							apiGroup(rule.APIGroups),
-							resourceName,
-							rule.Verbs))
+						for _, apiGroup := range rule.APIGroups {
+							root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s)#%s#%s verbs=%s",
+								sa.Name,
+								sa.Namespace,
+								roleBinding.Name,
+								roleBinding.Namespace,
+								role.Name,
+								role.Namespace,
+								getApiGroup(apiGroup),
+								resourceName,
+								rule.Verbs))
+						}
 					}
 				}
 			}
@@ -174,15 +178,9 @@ func matches(subjects []v1.Subject, namespace string, name string) bool {
 	return false
 }
 
-func apiGroup(in []string) string {
+func getApiGroup(in string) string {
 	if len(in) == 0 {
-		return "empty"
-	} else if len(in) == 1 {
-		if in[0] == "" {
-			return "<default>"
-		}
-		return in[0]
-	} else {
-		panic("expected length 1")
+		return "core.k8s.io"
 	}
+	return in
 }
