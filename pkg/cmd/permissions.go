@@ -3,12 +3,13 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/garethjevans/permissions/pkg/asciitree"
 	"github.com/spf13/cobra"
 	v1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"os"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
@@ -43,6 +44,7 @@ func NewCmdPermissions(streams genericclioptions.IOStreams) *cobra.Command {
 		Short:        "View the permissions inherited by the specified service account",
 		Example:      fmt.Sprintf(permissionsExample, "kubectl"),
 		SilenceUsage: true,
+		Args:         cobra.ExactValidArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.Run(); err != nil {
 				return err
