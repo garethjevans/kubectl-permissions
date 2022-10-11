@@ -6,3 +6,10 @@ install: build
 
 lint:
 	golangci-lint run
+
+test:
+	go test -v -short ./...
+
+.PHONY: integration
+integration:
+	go test -run Integration ./integration/...

@@ -20,14 +20,14 @@ Based on the roles configured in the example-rbac.yaml:
 ServiceAccount/sa-under-test (test-namespace)
 ├ ClusterRoleBinding/cluster-roles
 │ └ ClusterRole/cluster-level-role
-│   ├ <default>
+│   ├ apps
+│   │ ├ deployments verbs=[get watch list]
+│   │ └ replicasets verbs=[get watch list]
+│   ├ core.k8s.io
 │   │ ├ configmaps verbs=[get watch list]
 │   │ ├ pods verbs=[get watch list]
 │   │ ├ pods/log verbs=[get watch list]
 │   │ └ services verbs=[get watch list]
-│   ├ apps
-│   │ ├ deployments verbs=[get watch list]
-│   │ └ replicasets verbs=[get watch list]
 │   └ networking.k8s.io
 │     └ ingresses verbs=[get]
 └ RoleBinding/namespaced-roles (test-namespace)
@@ -49,14 +49,14 @@ The plugin will also highlight when configured roles are missing:
 ServiceAccount/sa-under-test (test-namespace)
 ├ ClusterRoleBinding/cluster-roles
 │ └ ClusterRole/cluster-level-role
-│   ├ <default>
+│   ├ apps
+│   │ ├ deployments verbs=[get watch list]
+│   │ └ replicasets verbs=[get watch list]
+│   ├ core.k8s.io
 │   │ ├ configmaps verbs=[get watch list]
 │   │ ├ pods verbs=[get watch list]
 │   │ ├ pods/log verbs=[get watch list]
 │   │ └ services verbs=[get watch list]
-│   ├ apps
-│   │ ├ deployments verbs=[get watch list]
-│   │ └ replicasets verbs=[get watch list]
 │   └ networking.k8s.io
 │     └ ingresses verbs=[get]
 ├ RoleBinding/missconfigured (test-namespace)
