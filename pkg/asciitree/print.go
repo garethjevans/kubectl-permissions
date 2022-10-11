@@ -5,6 +5,8 @@ import (
 	"io"
 	"sort"
 	"strings"
+
+	"github.com/mgutz/ansi"
 )
 
 // taken from https://github.com/Tufin/asciitree
@@ -60,15 +62,16 @@ const (
 )
 
 func (boxType BoxType) String() string {
+	phosphorize := ansi.ColorFunc("blue+h:black")
 	switch boxType {
 	case Regular:
-		return "\u251c" // ├
+		return phosphorize("\u251c") // ├
 	case Last:
-		return "\u2514" // └
+		return phosphorize("\u2514") // └
 	case AfterLast:
 		return " "
 	case Between:
-		return "\u2502" // │
+		return phosphorize("\u2502") // │
 	default:
 		panic("invalid box type")
 	}
