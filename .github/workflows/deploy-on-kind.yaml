@@ -42,6 +42,7 @@ jobs:
       - name: Deploy RBAC
         run: |
           kubectl apply -f example-rbac.yaml
+          kubectl apply -f aggregated-roles.yaml
 
       - name: Integration Tests
         run: |

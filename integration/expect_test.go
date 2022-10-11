@@ -77,3 +77,33 @@ ServiceAccount/sa-under-test (test-namespace)
 `
 	Expect(strings.TrimSpace(response)).To(Equal(strings.TrimSpace(expected)))
 }
+
+func TestAggregatedRolesIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
+	RegisterTestingT(t)
+
+	command := exec.Command("kubectl", "permissions", "monitoring", "-n", "test-namespace")
+	session, err := Start(command, GinkgoWriter, GinkgoWriter)
+	if err != nil {
+		t.Errorf("unable to exec command %s", err)
+	}
+
+	response := string(session.Wait(10 * time.Second).Out.Contents())
+
+	expected := `ServiceAccount/monitoring (test-namespace)
+└ ClusterRoleBinding/monitoring
+  └ ClusterRole/monitoring
+    └ core.k8s.io
+      ├ endpoints verbs=[create]
+      ├ endpoints verbs=[get list watch]
+      ├ pods verbs=[create]
+      ├ pods verbs=[get list watch]
+      ├ services verbs=[create]
+      └ services verbs=[get list watch]
+`
+
+	Expect(strings.TrimSpace(response)).To(Equal(strings.TrimSpace(expected)))
+}
