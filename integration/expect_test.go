@@ -27,7 +27,31 @@ func TestPluginIntegration(t *testing.T) {
 
 	response := string(session.Wait(10 * time.Second).Out.Contents())
 
-	expected := "\x1b[0;31m⛔ WARNING\x1b[0m roles.rbac.authorization.k8s.io \"a-missing-role\" not found\nServiceAccount/sa-under-test (test-namespace)\n\x1b[0;94;40m├\x1b[0m ClusterRoleBinding/cluster-roles\n\x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m ClusterRole/cluster-level-role\n\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m├\x1b[0m apps\n\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m deployments verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m replicasets verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m├\x1b[0m core.k8s.io\n\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m configmaps verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m pods verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m pods/log verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m services verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m└\x1b[0m networking.k8s.io\n\x1b[0;94;40m│\x1b[0m     \x1b[0;94;40m└\x1b[0m ingresses verbs=[get] \x1b[0;32m✔ \x1b[0m\n\x1b[0;94;40m├\x1b[0m RoleBinding/missconfigured (test-namespace)\n\x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m Role/a-missing-role (a-missing-role) ❌ - \x1b[0;31mMISSING!!\x1b[0m\n\x1b[0;94;40m└\x1b[0m RoleBinding/namespaced-roles (test-namespace)\n  \x1b[0;94;40m└\x1b[0m Role/namespaced-role (test-namespace)\n    \x1b[0;94;40m├\x1b[0m kpack.io\n    \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m builds verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n    \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m images verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n    \x1b[0;94;40m├\x1b[0m source.toolkit.fluxcd.io\n    \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m gitrepositories verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n    \x1b[0;94;40m└\x1b[0m tekton.dev\n      \x1b[0;94;40m├\x1b[0m pipelineruns verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n      \x1b[0;94;40m└\x1b[0m taskruns verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n"
+	expected := "\x1b[0;31m⛔ WARNING\x1b[0m roles.rbac.authorization.k8s.io \"a-missing-role\" not found\n" +
+		"ServiceAccount/sa-under-test (test-namespace)\n" +
+		"\x1b[0;94;40m├\x1b[0m ClusterRoleBinding/cluster-roles\n" +
+		"\x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m ClusterRole/cluster-level-role\n" +
+		"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m├\x1b[0m apps\n" +
+		"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m deployments verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
+		"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m replicasets verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
+		"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m├\x1b[0m core.k8s.io\n" +
+		"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m configmaps verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
+		"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m pods verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
+		"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m pods/log verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
+		"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m services verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
+		"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m└\x1b[0m networking.k8s.io\n\x1b[0;94;40m│\x1b[0m     \x1b[0;94;40m└\x1b[0m ingresses verbs=[get] \x1b[0;32m✔ \x1b[0m\n" +
+		"\x1b[0;94;40m├\x1b[0m RoleBinding/missconfigured (test-namespace)\n" +
+		"\x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m Role/a-missing-role (a-missing-role) ❌ - \x1b[0;31mMISSING!!\x1b[0m\n" +
+		"\x1b[0;94;40m└\x1b[0m RoleBinding/namespaced-roles (test-namespace)\n" +
+		"  \x1b[0;94;40m└\x1b[0m Role/namespaced-role (test-namespace)\n" +
+		"    \x1b[0;94;40m├\x1b[0m kpack.io\n" +
+		"    \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m builds verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
+		"    \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m images verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
+		"    \x1b[0;94;40m├\x1b[0m source.toolkit.fluxcd.io\n" +
+		"    \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m gitrepositories verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
+		"    \x1b[0;94;40m└\x1b[0m tekton.dev\n" +
+		"      \x1b[0;94;40m├\x1b[0m pipelineruns verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
+		"      \x1b[0;94;40m└\x1b[0m taskruns verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n"
 
 	Expect(strings.TrimSpace(response)).To(Equal(strings.TrimSpace(expected)))
 }
@@ -93,17 +117,16 @@ func TestAggregatedRolesIntegration(t *testing.T) {
 
 	response := string(session.Wait(10 * time.Second).Out.Contents())
 
-	expected := `ServiceAccount/monitoring (test-namespace)
-└ ClusterRoleBinding/monitoring
-  └ ClusterRole/monitoring
-    └ core.k8s.io
-      ├ endpoints verbs=[create]
-      ├ endpoints verbs=[get list watch]
-      ├ pods verbs=[create]
-      ├ pods verbs=[get list watch]
-      ├ services verbs=[create]
-      └ services verbs=[get list watch]
-`
+	expected := "ServiceAccount/monitoring (test-namespace)\n" +
+		"\x1b[0;94;40m└\x1b[0m ClusterRoleBinding/monitoring\n" +
+		"  \x1b[0;94;40m└\x1b[0m ClusterRole/monitoring\n" +
+		"    \x1b[0;94;40m└\x1b[0m core.k8s.io\n" +
+		"      \x1b[0;94;40m├\x1b[0m endpoints verbs=[create] \x1b[0;32m✔ \x1b[0m\n" +
+		"      \x1b[0;94;40m├\x1b[0m endpoints verbs=[get list watch] \x1b[0;32m✔ \x1b[0m\n" +
+		"      \x1b[0;94;40m├\x1b[0m pods verbs=[create] \x1b[0;32m✔ \x1b[0m\n" +
+		"      \x1b[0;94;40m├\x1b[0m pods verbs=[get list watch] \x1b[0;32m✔ \x1b[0m\n" +
+		"      \x1b[0;94;40m├\x1b[0m services verbs=[create] \x1b[0;32m✔ \x1b[0m\n" +
+		"      \x1b[0;94;40m└\x1b[0m services verbs=[get list watch] \x1b[0;32m✔ \x1b[0m\n"
 
 	Expect(strings.TrimSpace(response)).To(Equal(strings.TrimSpace(expected)))
 }
