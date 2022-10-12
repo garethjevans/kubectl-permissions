@@ -24,8 +24,10 @@ const (
 
 var (
 	permissionsExample = `
-	# view the permissions for the specified service account
+	# view the permissions for the 'default'' service account
 	%[1]s permissions default
+	# view the permissions for the 'sa' service account in the namespace 'test'
+	%[1]s permissions sa -n test
 	`
 	noColor = (os.Getenv("NO_COLOR") == "true")
 )
@@ -34,6 +36,9 @@ var (
 type PermissionsOptions struct {
 	configFlags *genericclioptions.ConfigFlags
 	genericclioptions.IOStreams
+
+	Cmd  *cobra.Command
+	Args []string
 }
 
 // NewPermissionsOptions provides an instance of PermissionsOptions with default values
@@ -55,6 +60,8 @@ func NewCmdPermissions(streams genericclioptions.IOStreams) *cobra.Command {
 		SilenceUsage: true,
 		Args:         cobra.ExactValidArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
+			o.Args = args
+			o.Cmd = c
 			if err := o.Run(); err != nil {
 				return err
 			}
@@ -84,11 +91,8 @@ func (o *PermissionsOptions) Run() error {
 		return err
 	}
 
-	if len(os.Args) < 2 {
-		fmt.Println("Usage> kubectl permissions <sa>")
-	}
-
-	name := os.Args[1]
+	// there must only be one arg
+	name := o.Args[0]
 
 	namespace := getNamespace(o.configFlags)
 
