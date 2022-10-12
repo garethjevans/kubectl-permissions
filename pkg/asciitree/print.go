@@ -3,8 +3,11 @@ package asciitree
 import (
 	"fmt"
 	"io"
+	"os"
 	"sort"
 	"strings"
+
+	"github.com/mgutz/ansi"
 )
 
 // taken from https://github.com/Tufin/asciitree
@@ -74,6 +77,22 @@ func (boxType BoxType) String() string {
 	}
 }
 
+func (boxType BoxType) StringWithColor() string {
+	phosphorize := ansi.ColorFunc("blue+h:black")
+	switch boxType {
+	case Regular:
+		return phosphorize("\u251c") // ├
+	case Last:
+		return phosphorize("\u2514") // └
+	case AfterLast:
+		return " "
+	case Between:
+		return phosphorize("\u2502") // │
+	default:
+		panic("invalid box type")
+	}
+}
+
 func getBoxType(index int, len int) BoxType {
 	if index+1 == len {
 		return Last
@@ -95,5 +114,10 @@ func getPadding(root bool, boxType BoxType) string {
 		return ""
 	}
 
-	return boxType.String() + " "
+	noColor := os.Getenv("NO_COLOR")
+	if noColor == "true" {
+		return boxType.String() + " "
+	}
+
+	return boxType.StringWithColor() + " "
 }
