@@ -3,6 +3,7 @@ package asciitree
 import (
 	"fmt"
 	"io"
+	"os"
 	"sort"
 	"strings"
 
@@ -62,6 +63,21 @@ const (
 )
 
 func (boxType BoxType) String() string {
+	switch boxType {
+	case Regular:
+		return "\u251c" // ├
+	case Last:
+		return "\u2514" // └
+	case AfterLast:
+		return " "
+	case Between:
+		return "\u2502" // │
+	default:
+		panic("invalid box type")
+	}
+}
+
+func (boxType BoxType) StringWithColor() string {
 	phosphorize := ansi.ColorFunc("blue+h:black")
 	switch boxType {
 	case Regular:
@@ -98,5 +114,10 @@ func getPadding(root bool, boxType BoxType) string {
 		return ""
 	}
 
-	return boxType.String() + " "
+	noColor := os.Getenv("NO_COLOR")
+	if noColor == "true" {
+		return boxType.String() + " "
+	}
+
+	return boxType.StringWithColor() + " "
 }

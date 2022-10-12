@@ -16,13 +16,18 @@ import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
+const (
+	CROSS_MARK = ":cross_mark:"
+	CHECK_MARK = ":check_mark:"
+	NO_ENTRY   = ":no_entry:"
+)
+
 var (
 	permissionsExample = `
 	# view the permissions for the specified service account
 	%[1]s permissions default
-`
-	green = ansi.ColorFunc("green")
-	red   = ansi.ColorFunc("red")
+	`
+	noColor = (os.Getenv("NO_COLOR") == "true")
 )
 
 // PermissionsOptions provides information to view permissions
@@ -103,13 +108,13 @@ func (o *PermissionsOptions) Run() error {
 		if matches(clusterRoleBinding.Subjects, namespace, name) {
 			clusterRole, err := client.RbacV1().ClusterRoles().Get(ctx, clusterRoleBinding.RoleRef.Name, metav1.GetOptions{})
 			if err != nil {
-				fmt.Println(red(emoji.Sprint(":no_entry: WARNING")), err)
+				fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), err)
 				root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s#ClusterRole/%s %s- %s",
 					sa.Name,
 					sa.Namespace,
 					clusterRoleBinding.Name,
 					clusterRoleBinding.RoleRef.Name,
-					emoji.Sprint(":cross_mark:"),
+					getEmoji(CROSS_MARK),
 					red("MISSING!!")))
 			} else {
 				// lets get the permissions
@@ -124,7 +129,7 @@ func (o *PermissionsOptions) Run() error {
 								getApiGroup(apiGroup),
 								resourceName,
 								rule.Verbs,
-								green(emoji.Sprint(":check_mark:"))))
+								green(getEmoji(CHECK_MARK))))
 						}
 					}
 				}
@@ -141,7 +146,7 @@ func (o *PermissionsOptions) Run() error {
 		if matches(roleBinding.Subjects, namespace, name) {
 			role, err := client.RbacV1().Roles(namespace).Get(ctx, roleBinding.RoleRef.Name, metav1.GetOptions{})
 			if err != nil {
-				fmt.Println(red(emoji.Sprint(":no_entry: WARNING")), err)
+				fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), err)
 				root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s) %s- %s",
 					sa.Name,
 					sa.Namespace,
@@ -149,7 +154,7 @@ func (o *PermissionsOptions) Run() error {
 					roleBinding.Namespace,
 					roleBinding.RoleRef.Name,
 					roleBinding.RoleRef.Name,
-					emoji.Sprint(":cross_mark:"),
+					getEmoji(CROSS_MARK),
 					red("MISSING!!")))
 			} else {
 				// lets get the permissions
@@ -166,7 +171,7 @@ func (o *PermissionsOptions) Run() error {
 								getApiGroup(apiGroup),
 								resourceName,
 								rule.Verbs,
-								green(emoji.Sprint(":check_mark:"))))
+								green(getEmoji(CHECK_MARK))))
 						}
 					}
 				}
@@ -193,4 +198,34 @@ func getApiGroup(in string) string {
 		return "core.k8s.io"
 	}
 	return in
+}
+
+func green(in string) string {
+	if noColor {
+		return in
+	}
+	greenOutput := ansi.ColorFunc("green")
+	return greenOutput(in)
+}
+
+func red(in string) string {
+	if noColor {
+		return in
+	}
+	redOutput := ansi.ColorFunc("red")
+	return redOutput(in)
+}
+
+func getEmoji(in string) string {
+	if noColor {
+		switch in {
+		case CROSS_MARK:
+			return "X "
+		case NO_ENTRY:
+			return "!! "
+		default:
+			return emoji.Sprint(in)
+		}
+	}
+	return emoji.Sprint(in)
 }
