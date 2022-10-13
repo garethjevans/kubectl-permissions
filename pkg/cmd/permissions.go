@@ -3,17 +3,15 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"os"
-
 	"github.com/garethjevans/permissions/pkg/asciitree"
 	"github.com/kyokomi/emoji/v2"
 	"github.com/mgutz/ansi"
 	"github.com/spf13/cobra"
 	v1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/client-go/kubernetes"
+	"os"
 )
 
 const (
@@ -22,13 +20,16 @@ const (
 	NO_ENTRY   = ":no_entry:"
 )
 
+const binaryName = "kubectl"
+
 var (
 	permissionsExample = `
-	# view the permissions for the 'default'' service account
+	# view the permissions for the 'default' service account
 	%[1]s permissions default
+
 	# view the permissions for the 'sa' service account in the namespace 'test'
-	%[1]s permissions sa -n test
-	`
+	%[1]s permissions sa -n tests`
+
 	noColor = (os.Getenv("NO_COLOR") == "true")
 )
 
@@ -54,9 +55,9 @@ func NewCmdPermissions(streams genericclioptions.IOStreams) *cobra.Command {
 	o := NewPermissionsOptions(streams)
 
 	cmd := &cobra.Command{
-		Use:          "permissions [name] [flags]",
+		Use:          fmt.Sprintf("%s permissions [service-account] [flags]", binaryName),
 		Short:        "View the permissions inherited by the specified service account",
-		Example:      fmt.Sprintf(permissionsExample, "kubectl"),
+		Example:      fmt.Sprintf(permissionsExample, binaryName),
 		SilenceUsage: true,
 		Args:         cobra.ExactValidArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
