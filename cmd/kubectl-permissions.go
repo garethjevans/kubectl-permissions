@@ -5,8 +5,10 @@ import (
 
 	"github.com/spf13/pflag"
 
-	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"github.com/garethjevans/permissions/pkg/cmd"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
+
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
 func main() {
