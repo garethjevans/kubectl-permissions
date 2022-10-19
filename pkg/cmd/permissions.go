@@ -59,7 +59,7 @@ func NewCmdPermissions(streams genericclioptions.IOStreams) *cobra.Command {
 		Short:        "View the permissions inherited by the specified service account",
 		Example:      fmt.Sprintf(permissionsExample, binaryName),
 		SilenceUsage: true,
-		Args:         cobra.ExactValidArgs(1),
+		Args:         cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			o.Args = args
 			o.Cmd = c
