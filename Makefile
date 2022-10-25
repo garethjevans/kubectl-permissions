@@ -1,5 +1,5 @@
 build:
-	go build -o kubectl-permissions cmd/kubectl-permissions.go
+	go build -o kubectl-permissions -trimpath -ldflags "-X github.com/garethjevans/permissions/pkg/version.Version=dev" cmd/kubectl-permissions.go
 
 install: build
 	sudo cp -f kubectl-permissions /usr/local/bin
