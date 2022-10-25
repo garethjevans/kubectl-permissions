@@ -5,13 +5,10 @@ metadata:
 spec:
   version: {{ .TagName }}
   homepage: https://github.com/garethjevans/kubectl-permissions
-  shortDescription: Display service account permissions
+  shortDescription: Displays and traces service account permissions
   description: |
-    This plugin shows all permissions from Roles/ClusterRoles for the referenced service account.
-  caveats: |
-    * For resources that are not in default namespace, currently you must
-      specify -n/--namespace explicitly (the current namespace setting is not
-      yet used).
+    This plugin lets you trace ServiceAccounts to Roles, RoleBindings and permissions 
+    to troubleshoot the bindings and transitive permission assignments.
   platforms:
   - selector:
       matchLabels:
