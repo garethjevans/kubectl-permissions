@@ -4,12 +4,19 @@ A kubectl plugin to display permissions from a service account
 
 ## Installation
 
+### Install a development version
+
 ```
 make build
 make install
 ```
 
-TODO make this `krew` installable
+### Install via krew
+
+```
+kubectl krew update
+kubectl krew install permissions
+```
 
 ## Example
 

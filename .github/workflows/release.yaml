@@ -26,7 +26,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         VERSION: ${{ github.event.release.tag_name }}
 
-    # until https://github.com/kubernetes-sigs/krew-index/pull/2661 is merged
-    #- name: Update new version in krew-index
-    #uses: rajatjindal/krew-release-bot@v0.0.25
-
+    - name: Update new version in krew-index
+      uses: rajatjindal/krew-release-bot@v0.0.25
