@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/garethjevans/permissions/pkg/asciitree"
+	"github.com/garethjevans/permissions/pkg/version"
 	"github.com/kyokomi/emoji/v2"
 	"github.com/mgutz/ansi"
 	"github.com/spf13/cobra"
@@ -38,6 +39,8 @@ type PermissionsOptions struct {
 	configFlags *genericclioptions.ConfigFlags
 	genericclioptions.IOStreams
 
+	Version bool
+
 	Cmd  *cobra.Command
 	Args []string
 }
@@ -59,7 +62,7 @@ func NewCmdPermissions(streams genericclioptions.IOStreams) *cobra.Command {
 		Short:        "View the permissions inherited by the specified service account",
 		Example:      fmt.Sprintf(permissionsExample, binaryName),
 		SilenceUsage: true,
-		Args:         cobra.ExactArgs(1),
+		Args:         cobra.MaximumNArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			o.Args = args
 			o.Cmd = c
@@ -70,6 +73,8 @@ func NewCmdPermissions(streams genericclioptions.IOStreams) *cobra.Command {
 		},
 	}
 
+	cmd.Flags().BoolVarP(&o.Version, "version", "v", false, "Display the version of the permissions plugin")
+
 	o.configFlags.AddFlags(cmd.Flags())
 
 	return cmd
@@ -78,6 +83,14 @@ func NewCmdPermissions(streams genericclioptions.IOStreams) *cobra.Command {
 // Run lists all available namespaces on a user's KUBECONFIG or updates the
 // current context based on a provided namespace.
 func (o *PermissionsOptions) Run() error {
+	if o.Version {
+		fmt.Println(version.Version)
+		return nil
+	}
+
+	if len(o.Args) != 1 {
+		panic(fmt.Sprintf("Error: accepts 1 arg(s), received %d", len(o.Args)))
+	}
 
 	var err error
 	config, err := o.configFlags.ToRESTConfig()
