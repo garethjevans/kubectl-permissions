@@ -1,4 +1,4 @@
-module github.com/garethjevans/permissions
+module github.com/garethjevans/kubectl-permissions
 
 go 1.18
 
