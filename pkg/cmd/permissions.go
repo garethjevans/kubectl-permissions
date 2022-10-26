@@ -3,8 +3,8 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/garethjevans/permissions/pkg/asciitree"
-	"github.com/garethjevans/permissions/pkg/version"
+	"github.com/garethjevans/kubectl-permissions/pkg/asciitree"
+	"github.com/garethjevans/kubectl-permissions/pkg/version"
 	"github.com/kyokomi/emoji/v2"
 	"github.com/mgutz/ansi"
 	"github.com/spf13/cobra"

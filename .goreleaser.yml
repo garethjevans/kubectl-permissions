@@ -6,7 +6,7 @@ builds:
   main: ./cmd/kubectl-permissions.go
   binary: kubectl-permissions
   ldflags:
-    - -X github.com/garethjevans/permissions/pkg/version.Version={{.Version}}
+    - -X github.com/garethjevans/kubectl-permissions/pkg/version.Version={{.Version}}
   env:
   - CGO_ENABLED=0
   goos:
