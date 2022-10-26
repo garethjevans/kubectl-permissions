@@ -1,4 +1,8 @@
-# permissions
+# kubectl-permissions
+
+![GitHub all releases](https://img.shields.io/github/downloads/garethjevans/kubectl-permissions/total)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/garethjevans/kubectl-permissions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/garethjevans/permissions)](https://goreportcard.com/report/github.com/garethjevans/permissions)
 
 A kubectl plugin to display permissions from a service account
 
