@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/pflag"
 
-	"github.com/garethjevans/permissions/pkg/cmd"
+	"github.com/garethjevans/kubectl-permissions/pkg/cmd"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
