@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"github.com/stretchr/testify/assert"
 	"os"
 	"os/exec"
 	"strings"
@@ -46,8 +45,7 @@ func TestPluginIntegration(t *testing.T) {
 			"    \x1b[0;94;40m└\x1b[0m core.k8s.io\n" +
 			"      \x1b[0;94;40m└\x1b[0m secrets verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n"
 
-	assert.Equal(t, strings.TrimSpace(expected), strings.TrimSpace(response))
-	//Expect(strings.TrimSpace(response)).To(Equal(strings.TrimSpace(expected)))
+	Expect(strings.TrimSpace(response)).To(Equal(strings.TrimSpace(expected)))
 }
 
 func TestPluginIntegrationNoColor(t *testing.T) {
@@ -84,8 +82,6 @@ func TestPluginIntegrationNoColor(t *testing.T) {
     └ core.k8s.io
       └ secrets verbs=[get watch list] ✔ 
 `
-	assert.Equal(t, strings.TrimSpace(expected), strings.TrimSpace(response))
-
 	Expect(strings.TrimSpace(response)).To(Equal(strings.TrimSpace(expected)))
 }
 
