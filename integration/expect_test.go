@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"github.com/stretchr/testify/assert"
 	"os"
 	"os/exec"
 	"strings"
@@ -42,16 +43,11 @@ func TestPluginIntegration(t *testing.T) {
 			"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m└\x1b[0m networking.k8s.io\n\x1b[0;94;40m│\x1b[0m     \x1b[0;94;40m└\x1b[0m ingresses verbs=[get] \x1b[0;32m✔ \x1b[0m\n" +
 			"\x1b[0;94;40m└\x1b[0m RoleBinding/namespaced-roles (test-namespace)\n" +
 			"  \x1b[0;94;40m└\x1b[0m Role/namespaced-role (test-namespace)\n" +
-			"    \x1b[0;94;40m├\x1b[0m kpack.io\n" +
-			"    \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m builds verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
-			"    \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m images verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
-			"    \x1b[0;94;40m├\x1b[0m source.toolkit.fluxcd.io\n" +
-			"    \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m gitrepositories verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
-			"    \x1b[0;94;40m└\x1b[0m tekton.dev\n" +
-			"      \x1b[0;94;40m├\x1b[0m pipelineruns verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
-			"      \x1b[0;94;40m└\x1b[0m taskruns verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n"
+			"    \x1b[0;94;40m└\x1b[0m core.k8s.io\n" +
+			"      \x1b[0;94;40m└\x1b[0m secrets verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n"
 
-	Expect(strings.TrimSpace(response)).To(Equal(strings.TrimSpace(expected)))
+	assert.Equal(t, strings.TrimSpace(expected), strings.TrimSpace(response))
+	//Expect(strings.TrimSpace(response)).To(Equal(strings.TrimSpace(expected)))
 }
 
 func TestPluginIntegrationNoColor(t *testing.T) {
@@ -85,14 +81,8 @@ func TestPluginIntegrationNoColor(t *testing.T) {
 │     └ ingresses verbs=[get] ✔ 
 └ RoleBinding/namespaced-roles (test-namespace)
   └ Role/namespaced-role (test-namespace)
-    ├ kpack.io
-    │ ├ builds verbs=[get watch list] ✔ 
-    │ └ images verbs=[get watch list] ✔ 
-    ├ source.toolkit.fluxcd.io
-    │ └ gitrepositories verbs=[get watch list] ✔ 
-    └ tekton.dev
-      ├ pipelineruns verbs=[get watch list] ✔ 
-      └ taskruns verbs=[get watch list] ✔ 
+    └ core.k8s.io
+      └ secrets verbs=[get watch list] ✔ 
 `
 	Expect(strings.TrimSpace(response)).To(Equal(strings.TrimSpace(expected)))
 }
