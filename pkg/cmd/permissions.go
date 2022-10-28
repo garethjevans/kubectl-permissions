@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/garethjevans/kubectl-permissions/pkg/asciitree"
+	"github.com/garethjevans/kubectl-permissions/pkg/roles"
 	"github.com/garethjevans/kubectl-permissions/pkg/version"
 	"github.com/kyokomi/emoji/v2"
 	"github.com/mgutz/ansi"
@@ -11,8 +12,10 @@ import (
 	v1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/kubernetes"
 	"os"
+	"strings"
 )
 
 const (
@@ -105,6 +108,16 @@ func (o *PermissionsOptions) Run() error {
 		return err
 	}
 
+	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
+	if err != nil {
+		return err
+	}
+
+	r, err := roles.DiscoverRolesAndPermissions(discoveryClient)
+	if err != nil {
+		return err
+	}
+
 	// there must only be one arg
 	name := o.Args[0]
 
@@ -139,7 +152,28 @@ func (o *PermissionsOptions) Run() error {
 				for _, rule := range clusterRole.Rules {
 					for _, resourceName := range rule.Resources {
 						for _, apiGroup := range rule.APIGroups {
-							root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s#ClusterRole/%s#%s#%s verbs=%s %s",
+							mark := green(getEmoji(CHECK_MARK))
+							message := ""
+							availableApiGroup, ok := r[apiGroup]
+							if !ok {
+								fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "API Group", apiGroup, "does not exist")
+								mark = red(getEmoji(CROSS_MARK))
+								message = fmt.Sprintf(" (API Group '%s' does not exist)", apiGroup)
+							} else {
+								verbs, ok := availableApiGroup[resourceName]
+								if !ok {
+									fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "Resource", resourceName, "does not exist")
+									mark = red(getEmoji(CROSS_MARK))
+									message = fmt.Sprintf(" (Resource '%s' does not exist)", resourceName)
+								} else {
+									verbMessage, ok := validateVerbs(rule.Verbs, verbs)
+									if !ok {
+										mark = red(getEmoji(CROSS_MARK))
+										message = verbMessage
+									}
+								}
+							}
+							root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s#ClusterRole/%s#%s#%s verbs=%s %s%s",
 								sa.Name,
 								sa.Namespace,
 								clusterRoleBinding.Name,
@@ -147,7 +181,8 @@ func (o *PermissionsOptions) Run() error {
 								getApiGroup(apiGroup),
 								resourceName,
 								rule.Verbs,
-								green(getEmoji(CHECK_MARK))))
+								mark,
+								message))
 						}
 					}
 				}
@@ -179,7 +214,28 @@ func (o *PermissionsOptions) Run() error {
 				for _, rule := range role.Rules {
 					for _, resourceName := range rule.Resources {
 						for _, apiGroup := range rule.APIGroups {
-							root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s)#%s#%s verbs=%s %s",
+							mark := green(getEmoji(CHECK_MARK))
+							message := ""
+							availableApiGroup, ok := r[apiGroup]
+							if !ok {
+								fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "API Group", apiGroup, "does not exist")
+								mark = red(getEmoji(CROSS_MARK))
+								message = fmt.Sprintf(" (API Group '%s' does not exist)", apiGroup)
+							} else {
+								verbs, ok := availableApiGroup[resourceName]
+								if !ok {
+									fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "Resource", resourceName, "does not exist")
+									mark = red(getEmoji(CROSS_MARK))
+									message = fmt.Sprintf(" (Resource '%s' does not exist)", resourceName)
+								} else {
+									verbMessage, ok := validateVerbs(rule.Verbs, verbs)
+									if !ok {
+										mark = red(getEmoji(CROSS_MARK))
+										message = verbMessage
+									}
+								}
+							}
+							root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s)#%s#%s verbs=%s %s%s",
 								sa.Name,
 								sa.Namespace,
 								roleBinding.Name,
@@ -189,7 +245,8 @@ func (o *PermissionsOptions) Run() error {
 								getApiGroup(apiGroup),
 								resourceName,
 								rule.Verbs,
-								green(getEmoji(CHECK_MARK))))
+								mark,
+								message))
 						}
 					}
 				}
@@ -200,6 +257,25 @@ func (o *PermissionsOptions) Run() error {
 	root.Fprint(os.Stdout, true, "")
 
 	return nil
+}
+
+func validateVerbs(configuredVerbs metav1.Verbs, availableVerbs []string) (string, bool) {
+	var invalid []string
+	for _, configuredVerb := range configuredVerbs {
+		if !contains(configuredVerb, availableVerbs) {
+			invalid = append(invalid, configuredVerb)
+		}
+	}
+	return " (Permissions '" + strings.Join(invalid, ", ") + "' are missing)", len(invalid) == 0
+}
+
+func contains(check string, list []string) bool {
+	for _, in := range list {
+		if in == check {
+			return true
+		}
+	}
+	return false
 }
 
 func matches(subjects []v1.Subject, namespace string, name string) bool {
