@@ -84,6 +84,8 @@ func TestPluginIntegrationNoColor(t *testing.T) {
     └ core.k8s.io
       └ secrets verbs=[get watch list] ✔ 
 `
+	assert.Equal(t, strings.TrimSpace(expected), strings.TrimSpace(response))
+
 	Expect(strings.TrimSpace(response)).To(Equal(strings.TrimSpace(expected)))
 }
 

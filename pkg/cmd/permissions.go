@@ -158,13 +158,13 @@ func (o *PermissionsOptions) Run() error {
 							if !ok {
 								fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "API Group", apiGroup, "does not exist")
 								mark = red(getEmoji(CROSS_MARK))
-								message = fmt.Sprintf("(API Group '%s' does not exist)", apiGroup)
+								message = fmt.Sprintf(" (API Group '%s' does not exist)", apiGroup)
 							} else {
 								verbs, ok := availableApiGroup[resourceName]
 								if !ok {
 									fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "Resource", resourceName, "does not exist")
 									mark = red(getEmoji(CROSS_MARK))
-									message = fmt.Sprintf("(Resource '%s' does not exist)", resourceName)
+									message = fmt.Sprintf(" (Resource '%s' does not exist)", resourceName)
 								} else {
 									verbMessage, ok := validateVerbs(rule.Verbs, verbs)
 									if !ok {
@@ -173,7 +173,7 @@ func (o *PermissionsOptions) Run() error {
 									}
 								}
 							}
-							root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s#ClusterRole/%s#%s#%s verbs=%s %s %s",
+							root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s#ClusterRole/%s#%s#%s verbs=%s %s%s",
 								sa.Name,
 								sa.Namespace,
 								clusterRoleBinding.Name,
@@ -220,13 +220,13 @@ func (o *PermissionsOptions) Run() error {
 							if !ok {
 								fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "API Group", apiGroup, "does not exist")
 								mark = red(getEmoji(CROSS_MARK))
-								message = fmt.Sprintf("(API Group '%s' does not exist)", apiGroup)
+								message = fmt.Sprintf(" (API Group '%s' does not exist)", apiGroup)
 							} else {
 								verbs, ok := availableApiGroup[resourceName]
 								if !ok {
 									fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "Resource", resourceName, "does not exist")
 									mark = red(getEmoji(CROSS_MARK))
-									message = fmt.Sprintf("(Resource '%s' does not exist)", resourceName)
+									message = fmt.Sprintf(" (Resource '%s' does not exist)", resourceName)
 								} else {
 									verbMessage, ok := validateVerbs(rule.Verbs, verbs)
 									if !ok {
@@ -235,7 +235,7 @@ func (o *PermissionsOptions) Run() error {
 									}
 								}
 							}
-							root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s)#%s#%s verbs=%s %s %s",
+							root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s)#%s#%s verbs=%s %s%s",
 								sa.Name,
 								sa.Namespace,
 								roleBinding.Name,
@@ -266,7 +266,7 @@ func validateVerbs(configuredVerbs metav1.Verbs, availableVerbs []string) (strin
 			invalid = append(invalid, configuredVerb)
 		}
 	}
-	return "(Permissions '" + strings.Join(invalid, ", ") + "' are missing)", len(invalid) == 0
+	return " (Permissions '" + strings.Join(invalid, ", ") + "' are missing)", len(invalid) == 0
 }
 
 func contains(check string, list []string) bool {
