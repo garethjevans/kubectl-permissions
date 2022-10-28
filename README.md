@@ -45,7 +45,7 @@ ServiceAccount/sa-under-test (test-namespace)
 │   ├ core.k8s.io
 │   │ ├ configmaps verbs=[get watch list] ✔
 │   │ ├ pods verbs=[get watch list] ✔
-│   │ ├ pods/log verbs=[get watch list] ✔
+│   │ ├ pods/log verbs=[get] ✔
 │   │ └ services verbs=[get watch list] ✔
 │   └ networking.k8s.io
 │     └ ingresses verbs=[get] ✔
@@ -66,17 +66,19 @@ The plugin will also highlight when configured roles are missing:
 ```commandLine
 ❯ kubectl permissions invalid-sa
 ⛔ WARNING roles.rbac.authorization.k8s.io "missing-role" not found
+⛔ WARNING API Group bingbong.io does not exist
+⛔ WARNING Resource invalid does not exist
 ServiceAccount/invalid-sa (test-namespace)
 ├ RoleBinding/missing-role-binding (test-namespace)
 │ └ Role/missing-role (missing-role) ❌ - MISSING!!
 └ RoleBinding/missing-role-binding2 (test-namespace)
   └ Role/invalid-role (test-namespace)
     ├ bingbong.io
-    │ └ something verbs=[get watch list] ✔
+    │ └ something verbs=[get watch list] ❌  (API Group 'bingbong.io' does not exist)
     ├ source.toolkit.fluxcd.io
-    │ └ gitrepositories verbs=[laugh] ✔
+    │ └ gitrepositories verbs=[laugh] ❌  (Permissions 'laugh' are missing)
     └ tekton.dev
-      └ invalid verbs=[get] ✔
+      └ invalid verbs=[get] ❌  (Resource 'invalid' does not exist)
 ```
 
 To display the current version of the plugin you can use:
