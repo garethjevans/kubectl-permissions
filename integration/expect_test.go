@@ -37,7 +37,7 @@ func TestPluginIntegration(t *testing.T) {
 			"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m├\x1b[0m core.k8s.io\n" +
 			"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m configmaps verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
 			"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m pods verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
-			"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m pods/log verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
+			"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m├\x1b[0m pods/log verbs=[get] \x1b[0;32m✔ \x1b[0m\n" +
 			"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m│\x1b[0m \x1b[0;94;40m└\x1b[0m services verbs=[get watch list] \x1b[0;32m✔ \x1b[0m\n" +
 			"\x1b[0;94;40m│\x1b[0m   \x1b[0;94;40m└\x1b[0m networking.k8s.io\n\x1b[0;94;40m│\x1b[0m     \x1b[0;94;40m└\x1b[0m ingresses verbs=[get] \x1b[0;32m✔ \x1b[0m\n" +
 			"\x1b[0;94;40m└\x1b[0m RoleBinding/namespaced-roles (test-namespace)\n" +
@@ -79,7 +79,7 @@ func TestPluginIntegrationNoColor(t *testing.T) {
 │   ├ core.k8s.io
 │   │ ├ configmaps verbs=[get watch list] ✔ 
 │   │ ├ pods verbs=[get watch list] ✔ 
-│   │ ├ pods/log verbs=[get watch list] ✔ 
+│   │ ├ pods/log verbs=[get] ✔ 
 │   │ └ services verbs=[get watch list] ✔ 
 │   └ networking.k8s.io
 │     └ ingresses verbs=[get] ✔ 

@@ -17,19 +17,22 @@ func DiscoverRolesAndPermissions(d *discovery.DiscoveryClient) (map[string]map[s
 		groupOnly := strings.Split(resourceList.GroupVersion, "/")[0]
 		// core API doesn't have a group "name". We set to "core" and replace at the end with a blank string in the rbac policy rule
 		if resourceList.GroupVersion == "v1" {
-			groupOnly = "core"
+			groupOnly = ""
 		}
 
-		resourceVerbMap := make(map[string][]string)
+		_, ok := rolesAndPermissions[groupOnly]
+		if !ok {
+			rolesAndPermissions[groupOnly] = make(map[string][]string)
+		}
+
 		for _, resource := range resourceList.APIResources {
 			verbs := make([]string, 0)
 			for _, v := range resource.Verbs {
 				verbs = append(verbs, v)
 			}
 
-			resourceVerbMap[resource.Name] = verbs
+			rolesAndPermissions[groupOnly][resource.Name] = verbs
 		}
-		rolesAndPermissions[groupOnly] = resourceVerbMap
 	}
 
 	return rolesAndPermissions, nil

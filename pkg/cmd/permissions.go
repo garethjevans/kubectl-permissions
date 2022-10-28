@@ -266,7 +266,7 @@ func validateVerbs(configuredVerbs metav1.Verbs, availableVerbs []string) (strin
 			invalid = append(invalid, configuredVerb)
 		}
 	}
-	return "Permissions '" + strings.Join(invalid, ",") + "' are missing", len(invalid) == 0
+	return "(Permissions '" + strings.Join(invalid, ", ") + "' are missing)", len(invalid) == 0
 }
 
 func contains(check string, list []string) bool {
