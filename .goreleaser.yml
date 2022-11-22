@@ -1,6 +1,7 @@
 before:
   hooks:
   - go mod download
+
 builds:
 - id: kubectl-permissions
   main: ./cmd/kubectl-permissions.go
@@ -19,6 +20,31 @@ builds:
   ignore:
   - goos: windows
     goarch: arm64
+
+source:
+  enabled: true
+
+sboms:
+- artifacts: archive
+- id: source
+  artifacts: source
+
+checksum:
+  name_template: 'checksums.txt'
+
+signs:
+- id: kubectl-permissions
+  cmd: cosign
+  env:
+    - COSIGN_EXPERIMENTAL=1
+  certificate: '${artifact}.pem'
+  args:
+    - sign-blob
+    - '--output-certificate=${certificate}'
+    - '--output-signature=${signature}'
+    - '${artifact}'
+  artifacts: checksum
+  output: true
 
 archives:
 - builds:
