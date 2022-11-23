@@ -88,3 +88,29 @@ To display the current version of the plugin you can use:
 0.0.4
 ```
 
+## Verifying the artifacts
+
+All artifacts are checksummed, and the `checksum.txt` file is signed using [cosign](https://github.com/sigstore/cosign).
+
+1. Download your required binary, and also the certificate(`checksums.txt.pem`), signature(`checksums.txt.sig`) and the `checksums.txt` (_this file contains a checksum for each artifact_) file.
+
+```sh
+VERSION=v0.0.6
+https://github.com/garethjevans/kubectl-permissions/releases/download/$VERSION/checksums.txt.pem
+https://github.com/garethjevans/kubectl-permissions/releases/download/$VERSION/checksums.txt.sig
+https://github.com/garethjevans/kubectl-permissions/releases/download/$VERSION/checksums.txt
+```
+
+2. Now you can verify the signature:
+
+```sh
+cosign verify-blob \
+  --cert checksums.txt.pem \
+  --signature checksums.txt.sig \
+  checksums.txt
+```
+3. To wrap up, you can verify the SHA256 checksums match the downloaded binary:
+
+```sh
+sha256sum --ignore-missing -c checksums.txt
+```
