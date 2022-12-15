@@ -31,6 +31,9 @@ func DiscoverRolesAndPermissions(d *discovery.DiscoveryClient) (map[string]map[s
 				verbs = append(verbs, v)
 			}
 
+			// always add '*' as a wildcard
+			verbs = append(verbs, "*")
+
 			rolesAndPermissions[groupOnly][resource.Name] = verbs
 		}
 	}

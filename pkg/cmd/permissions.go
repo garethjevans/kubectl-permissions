@@ -34,7 +34,7 @@ var (
 	# view the permissions for the 'sa' service account in the namespace 'test'
 	%[1]s permissions sa -n tests`
 
-	noColor = (os.Getenv("NO_COLOR") == "true")
+	noColor = os.Getenv("NO_COLOR") == "true"
 )
 
 // PermissionsOptions provides information to view permissions
@@ -293,7 +293,7 @@ func contains(check string, list []string) bool {
 
 func matches(subjects []v1.Subject, namespace string, name string) bool {
 	for _, sub := range subjects {
-		if sub.Namespace == "" {
+		if sub.Namespace != "" {
 			if sub.Kind == "ServiceAccount" && sub.Name == name && sub.Namespace == namespace {
 				return true
 			}

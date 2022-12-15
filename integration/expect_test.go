@@ -108,7 +108,6 @@ func TestIntegration(t *testing.T) {
 			assert.Equal(t, strings.TrimSpace(tt.expectedErr), strings.TrimSpace(stdErr))
 		})
 	}
-
 }
 
 func TestPluginIntegrationNoColor(t *testing.T) {
