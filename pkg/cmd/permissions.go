@@ -69,10 +69,7 @@ func NewCmdPermissions(streams genericclioptions.IOStreams) *cobra.Command {
 		RunE: func(c *cobra.Command, args []string) error {
 			o.Args = args
 			o.Cmd = c
-			if err := o.Run(); err != nil {
-				return err
-			}
-			return nil
+			return o.Run()
 		},
 	}
 
@@ -131,6 +128,10 @@ func (o *PermissionsOptions) Run() error {
 
 	root := asciitree.Tree{}
 
+	root.Add(fmt.Sprintf("ServiceAccount/%s (%s)",
+		sa.Name,
+		sa.Namespace))
+
 	clusterRoleBindings, err := client.RbacV1().ClusterRoleBindings().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return err
@@ -138,6 +139,11 @@ func (o *PermissionsOptions) Run() error {
 
 	for _, clusterRoleBinding := range clusterRoleBindings.Items {
 		if matches(clusterRoleBinding.Subjects, namespace, name) {
+			root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s",
+				sa.Name,
+				sa.Namespace,
+				clusterRoleBinding.Name))
+
 			clusterRole, err := client.RbacV1().ClusterRoles().Get(ctx, clusterRoleBinding.RoleRef.Name, metav1.GetOptions{})
 			if err != nil {
 				fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), err)
@@ -198,6 +204,12 @@ func (o *PermissionsOptions) Run() error {
 
 	for _, roleBinding := range roleBindings.Items {
 		if matches(roleBinding.Subjects, namespace, name) {
+			root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)",
+				sa.Name,
+				sa.Namespace,
+				roleBinding.Name,
+				roleBinding.Namespace))
+
 			role, err := client.RbacV1().Roles(namespace).Get(ctx, roleBinding.RoleRef.Name, metav1.GetOptions{})
 			if err != nil {
 				fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), err)
@@ -281,9 +293,16 @@ func contains(check string, list []string) bool {
 
 func matches(subjects []v1.Subject, namespace string, name string) bool {
 	for _, sub := range subjects {
-		if sub.Kind == "ServiceAccount" && sub.Name == name && sub.Namespace == namespace {
-			return true
+		if sub.Namespace == "" {
+			if sub.Kind == "ServiceAccount" && sub.Name == name && sub.Namespace == namespace {
+				return true
+			}
+		} else {
+			if sub.Kind == "ServiceAccount" && sub.Name == name {
+				return true
+			}
 		}
+
 	}
 	return false
 }
