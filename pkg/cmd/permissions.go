@@ -92,7 +92,8 @@ func (o *PermissionsOptions) Run() error {
 	}
 
 	if len(o.Args) != 1 {
-		panic(fmt.Sprintf("Error: accepts 1 arg(s), received %d", len(o.Args)))
+		fmt.Println("Usage:", o.Cmd.Use)
+		return fmt.Errorf("error: accepts 1 arg(s), received %d", len(o.Args))
 	}
 
 	var err error
