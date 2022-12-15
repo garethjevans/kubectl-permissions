@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         kubernetes_version:
-          # only 3 supported versions
+          - "kindest/node:v1.26.0"
           - "kindest/node:v1.25.2"
           - "kindest/node:v1.24.6"
           - "kindest/node:v1.23.12"
