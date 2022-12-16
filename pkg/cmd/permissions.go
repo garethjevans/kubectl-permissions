@@ -34,7 +34,7 @@ var (
 	# view the permissions for the 'sa' service account in the namespace 'test'
 	%[1]s permissions sa -n tests`
 
-	noColor = (os.Getenv("NO_COLOR") == "true")
+	noColor = os.Getenv("NO_COLOR") == "true"
 )
 
 // PermissionsOptions provides information to view permissions
@@ -69,10 +69,7 @@ func NewCmdPermissions(streams genericclioptions.IOStreams) *cobra.Command {
 		RunE: func(c *cobra.Command, args []string) error {
 			o.Args = args
 			o.Cmd = c
-			if err := o.Run(); err != nil {
-				return err
-			}
-			return nil
+			return o.Run()
 		},
 	}
 
@@ -131,6 +128,10 @@ func (o *PermissionsOptions) Run() error {
 
 	root := asciitree.Tree{}
 
+	root.Add(fmt.Sprintf("ServiceAccount/%s (%s)",
+		sa.Name,
+		sa.Namespace))
+
 	clusterRoleBindings, err := client.RbacV1().ClusterRoleBindings().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return err
@@ -138,6 +139,11 @@ func (o *PermissionsOptions) Run() error {
 
 	for _, clusterRoleBinding := range clusterRoleBindings.Items {
 		if matches(clusterRoleBinding.Subjects, namespace, name) {
+			root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#ClusterRoleBinding/%s",
+				sa.Name,
+				sa.Namespace,
+				clusterRoleBinding.Name))
+
 			clusterRole, err := client.RbacV1().ClusterRoles().Get(ctx, clusterRoleBinding.RoleRef.Name, metav1.GetOptions{})
 			if err != nil {
 				fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), err)
@@ -198,56 +204,117 @@ func (o *PermissionsOptions) Run() error {
 
 	for _, roleBinding := range roleBindings.Items {
 		if matches(roleBinding.Subjects, namespace, name) {
-			role, err := client.RbacV1().Roles(namespace).Get(ctx, roleBinding.RoleRef.Name, metav1.GetOptions{})
-			if err != nil {
-				fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), err)
-				root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s) %s- %s",
-					sa.Name,
-					sa.Namespace,
-					roleBinding.Name,
-					roleBinding.Namespace,
-					roleBinding.RoleRef.Name,
-					roleBinding.RoleRef.Name,
-					getEmoji(CROSS_MARK),
-					red("MISSING!!")))
-			} else {
-				// lets get the permissions
-				for _, rule := range role.Rules {
-					for _, resourceName := range rule.Resources {
-						for _, apiGroup := range rule.APIGroups {
-							mark := green(getEmoji(CHECK_MARK))
-							message := ""
-							availableApiGroup, ok := r[apiGroup]
-							if !ok {
-								fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "API Group", apiGroup, "does not exist")
-								mark = red(getEmoji(CROSS_MARK))
-								message = fmt.Sprintf(" (API Group '%s' does not exist)", apiGroup)
-							} else {
-								verbs, ok := availableApiGroup[resourceName]
+			root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)",
+				sa.Name,
+				sa.Namespace,
+				roleBinding.Name,
+				roleBinding.Namespace))
+
+			if roleBinding.RoleRef.Kind == "Role" {
+				role, err := client.RbacV1().Roles(namespace).Get(ctx, roleBinding.RoleRef.Name, metav1.GetOptions{})
+				if err != nil {
+					fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), err)
+					root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s) %s- %s",
+						sa.Name,
+						sa.Namespace,
+						roleBinding.Name,
+						roleBinding.Namespace,
+						roleBinding.RoleRef.Name,
+						roleBinding.RoleRef.Name,
+						getEmoji(CROSS_MARK),
+						red("MISSING!!")))
+				} else {
+					// lets get the permissions
+					for _, rule := range role.Rules {
+						for _, resourceName := range rule.Resources {
+							for _, apiGroup := range rule.APIGroups {
+								mark := green(getEmoji(CHECK_MARK))
+								message := ""
+								availableApiGroup, ok := r[apiGroup]
 								if !ok {
-									fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "Resource", resourceName, "does not exist")
+									fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "API Group", apiGroup, "does not exist")
 									mark = red(getEmoji(CROSS_MARK))
-									message = fmt.Sprintf(" (Resource '%s' does not exist)", resourceName)
+									message = fmt.Sprintf(" (API Group '%s' does not exist)", apiGroup)
 								} else {
-									verbMessage, ok := validateVerbs(rule.Verbs, verbs)
+									verbs, ok := availableApiGroup[resourceName]
 									if !ok {
+										fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "Resource", resourceName, "does not exist")
 										mark = red(getEmoji(CROSS_MARK))
-										message = verbMessage
+										message = fmt.Sprintf(" (Resource '%s' does not exist)", resourceName)
+									} else {
+										verbMessage, ok := validateVerbs(rule.Verbs, verbs)
+										if !ok {
+											mark = red(getEmoji(CROSS_MARK))
+											message = verbMessage
+										}
 									}
 								}
+								root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s)#%s#%s verbs=%s %s%s",
+									sa.Name,
+									sa.Namespace,
+									roleBinding.Name,
+									roleBinding.Namespace,
+									role.Name,
+									role.Namespace,
+									getApiGroup(apiGroup),
+									resourceName,
+									rule.Verbs,
+									mark,
+									message))
 							}
-							root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#Role/%s (%s)#%s#%s verbs=%s %s%s",
-								sa.Name,
-								sa.Namespace,
-								roleBinding.Name,
-								roleBinding.Namespace,
-								role.Name,
-								role.Namespace,
-								getApiGroup(apiGroup),
-								resourceName,
-								rule.Verbs,
-								mark,
-								message))
+						}
+					}
+				}
+			} else {
+				clusterRole, err := client.RbacV1().ClusterRoles().Get(ctx, roleBinding.RoleRef.Name, metav1.GetOptions{})
+				if err != nil {
+					fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), err)
+					root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#ClusterRole/%s %s- %s",
+						sa.Name,
+						sa.Namespace,
+						roleBinding.Name,
+						roleBinding.Namespace,
+						roleBinding.RoleRef.Name,
+						getEmoji(CROSS_MARK),
+						red("MISSING!!")))
+				} else {
+					// lets get the permissions
+					for _, rule := range clusterRole.Rules {
+						for _, resourceName := range rule.Resources {
+							for _, apiGroup := range rule.APIGroups {
+								mark := green(getEmoji(CHECK_MARK))
+								message := ""
+								availableApiGroup, ok := r[apiGroup]
+								if !ok {
+									fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "API Group", apiGroup, "does not exist")
+									mark = red(getEmoji(CROSS_MARK))
+									message = fmt.Sprintf(" (API Group '%s' does not exist)", apiGroup)
+								} else {
+									verbs, ok := availableApiGroup[resourceName]
+									if !ok {
+										fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), "Resource", resourceName, "does not exist")
+										mark = red(getEmoji(CROSS_MARK))
+										message = fmt.Sprintf(" (Resource '%s' does not exist)", resourceName)
+									} else {
+										verbMessage, ok := validateVerbs(rule.Verbs, verbs)
+										if !ok {
+											mark = red(getEmoji(CROSS_MARK))
+											message = verbMessage
+										}
+									}
+								}
+								root.Add(fmt.Sprintf("ServiceAccount/%s (%s)#RoleBinding/%s (%s)#ClusterRole/%s#%s#%s verbs=%s %s%s",
+									sa.Name,
+									sa.Namespace,
+									roleBinding.Name,
+									roleBinding.Namespace,
+									clusterRole.Name,
+									getApiGroup(apiGroup),
+									resourceName,
+									rule.Verbs,
+									mark,
+									message))
+							}
 						}
 					}
 				}
@@ -281,9 +348,16 @@ func contains(check string, list []string) bool {
 
 func matches(subjects []v1.Subject, namespace string, name string) bool {
 	for _, sub := range subjects {
-		if sub.Kind == "ServiceAccount" && sub.Name == name && sub.Namespace == namespace {
-			return true
+		if sub.Namespace != "" {
+			if sub.Kind == "ServiceAccount" && sub.Name == name && sub.Namespace == namespace {
+				return true
+			}
+		} else {
+			if sub.Kind == "ServiceAccount" && sub.Name == name {
+				return true
+			}
 		}
+
 	}
 	return false
 }
