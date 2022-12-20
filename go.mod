@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
-	github.com/onsi/ginkgo/v2 v2.6.0
+	github.com/onsi/ginkgo/v2 v2.6.1
 	github.com/onsi/gomega v1.24.1
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
