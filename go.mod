@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
-	github.com/onsi/ginkgo/v2 v2.8.1
+	github.com/onsi/ginkgo/v2 v2.8.3
 	github.com/onsi/gomega v1.27.1
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
@@ -16,9 +16,12 @@ require (
 )
 
 require (
+	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
+	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
 )
 
 require (
