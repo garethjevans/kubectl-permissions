@@ -23,7 +23,7 @@ jobs:
         go-version-file: 'go.mod'
 
     - uses: sigstore/cosign-installer@v3.0.1
-    - uses: anchore/sbom-action/download-syft@v0.13.3
+    - uses: anchore/sbom-action/download-syft@v0.13.4
     - name: GoReleaser
       uses: goreleaser/goreleaser-action@v4
       with:
