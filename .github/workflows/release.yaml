@@ -34,4 +34,4 @@ jobs:
         VERSION: ${{ github.event.release.tag_name }}
 
     - name: Update new version in krew-index
-      uses: rajatjindal/krew-release-bot@v0.0.43
+      uses: rajatjindal/krew-release-bot@v0.0.46
