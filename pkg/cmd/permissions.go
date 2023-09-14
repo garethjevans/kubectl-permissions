@@ -9,6 +9,7 @@ import (
 	"github.com/kyokomi/emoji/v2"
 	"github.com/mgutz/ansi"
 	"github.com/spf13/cobra"
+	v12 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -42,7 +43,8 @@ type PermissionsOptions struct {
 	configFlags *genericclioptions.ConfigFlags
 	genericclioptions.IOStreams
 
-	Version bool
+	Version        bool
+	IncludeSecrets bool
 
 	Cmd  *cobra.Command
 	Args []string
@@ -74,6 +76,7 @@ func NewCmdPermissions(streams genericclioptions.IOStreams) *cobra.Command {
 	}
 
 	cmd.Flags().BoolVarP(&o.Version, "version", "v", false, "Display the version of the permissions plugin")
+	cmd.Flags().BoolVarP(&o.IncludeSecrets, "include-secrets", "", false, "Include the service account secrets in the output")
 
 	o.configFlags.AddFlags(cmd.Flags())
 
@@ -321,9 +324,58 @@ func (o *PermissionsOptions) Run() error {
 			}
 		}
 	}
-
 	root.Fprint(os.Stdout, true, "")
 
+	if o.IncludeSecrets {
+
+		allSecrets, err := client.CoreV1().Secrets(sa.Namespace).List(ctx, metav1.ListOptions{})
+		if err != nil {
+			fmt.Println(red(getEmoji(NO_ENTRY)+"WARNING"), err)
+		}
+
+		root = asciitree.Tree{}
+		for _, secret := range sa.Secrets {
+			found := findSecretByName(allSecrets, secret.Name)
+			if found != nil {
+				mark := green(getEmoji(CHECK_MARK))
+				root.Add(fmt.Sprintf("Secrets#%s %s#type=%s", secret.Name, mark, found.Type))
+				for k, v := range found.Annotations {
+					if strings.HasPrefix(k, "tekton.dev/") {
+						root.Add(fmt.Sprintf("Secrets#%s %s#%s=%s", secret.Name, mark, k, v))
+					}
+				}
+			} else {
+				mark := red(getEmoji(CROSS_MARK))
+				message := fmt.Sprintf(" (Secret '%s' does not exist)", secret.Name)
+				root.Add(fmt.Sprintf("Secrets#%s %s%s", secret.Name, mark, message))
+			}
+
+		}
+
+		for _, secret := range sa.ImagePullSecrets {
+			found := findSecretByName(allSecrets, secret.Name)
+			if found != nil {
+				mark := green(getEmoji(CHECK_MARK))
+				root.Add(fmt.Sprintf("ImagePullSecrets#%s %s#type=%s", secret.Name, mark, found.Type))
+			} else {
+				mark := red(getEmoji(CROSS_MARK))
+				message := fmt.Sprintf(" (Secret '%s' does not exist)", secret.Name)
+				root.Add(fmt.Sprintf("ImagePullSecrets#%s %s%s", secret.Name, mark, message))
+			}
+		}
+
+		root.Fprint(os.Stdout, true, "")
+	}
+
+	return nil
+}
+
+func findSecretByName(secrets *v12.SecretList, name string) *v12.Secret {
+	for _, secret := range secrets.Items {
+		if secret.Name == name {
+			return &secret
+		}
+	}
 	return nil
 }
 
