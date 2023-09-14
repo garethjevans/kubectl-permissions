@@ -81,6 +81,22 @@ ServiceAccount/invalid-sa (test-namespace)
       └ invalid verbs=[get] ❌  (Resource 'invalid' does not exist)
 ```
 
+The plugin also has the ability to display any secrets attached to a service account, either as a `secret` or an `imagePullSecret`.
+
+```commandLine
+❯ kubectl permissions my-sa --include-secrets
+ImagePullSecrets
+└ registries-credentials ✔
+  └ type=kubernetes.io/dockerconfigjson
+Secrets
+├ git-ssh ✔
+│ ├ tekton.dev/git-0=https://my-git-server
+│ └ type=kubernetes.io/basic-auth
+└ registry-credentials ✔
+  ├ tekton.dev/docker-0=docker.io/my-docker-registry
+  └ type=kubernetes.io/dockerconfigjson
+```
+
 To display the current version of the plugin you can use:
 
 ```commandline
