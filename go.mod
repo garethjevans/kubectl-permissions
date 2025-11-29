@@ -1,6 +1,8 @@
 module github.com/garethjevans/kubectl-permissions
 
-go 1.19
+go 1.21
+
+toolchain go1.23.0
 
 require (
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
