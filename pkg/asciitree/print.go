@@ -47,7 +47,7 @@ func (tree Tree) Fprint(w io.Writer, root bool, padding string) {
 	sort.Strings(keys)
 	for _, k := range keys {
 		v := tree[k]
-		fmt.Fprintf(w, "%s%s\n", padding+getPadding(root, getBoxType(index, len(tree))), k)
+		_,_ = fmt.Fprintf(w, "%s%s\n", padding+getPadding(root, getBoxType(index, len(tree))), k)
 		v.Fprint(w, false, padding+getPadding(root, getBoxTypeExternal(index, len(tree))))
 		index++
 	}
