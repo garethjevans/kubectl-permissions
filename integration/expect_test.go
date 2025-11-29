@@ -111,8 +111,11 @@ func TestIntegration(t *testing.T) {
 }
 
 func TestPluginIntegrationNoColor(t *testing.T) {
-	os.Setenv("NO_COLOR", "true")
-	defer os.Unsetenv("NO_COLOR")
+	_ = os.Setenv("NO_COLOR", "true")
+	defer func() { 
+		_ = os.Unsetenv("NO_COLOR")
+	}()
+
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
