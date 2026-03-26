@@ -30,7 +30,7 @@ jobs:
           mv kubectl-permissions /usr/local/bin   
 
       - name: Install Kubectl
-        uses: azure/setup-kubectl@v4
+        uses: azure/setup-kubectl@v5
 
       - name: Create Kind Cluster
         uses: helm/kind-action@v1.14.0
